@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { getAllBooks } from '../lib/services/books';
 import BookGrid from './components/BookGrid';
 import { books } from './data/books';
 
@@ -23,7 +24,7 @@ export default function HomePage() {
       </section>
 
       {/* Book Grid */}
-      <BookGrid books={books} onAddToCart={handleAddToCart} />
+      <BookGrid onAddToCart={handleAddToCart} />
     </div>
   );
 }

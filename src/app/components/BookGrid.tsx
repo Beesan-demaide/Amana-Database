@@ -7,23 +7,53 @@ import BookCard from './BookCard';
 import BookListItem from './BookListItem';
 import Pagination from './Pagination';
 
+/*
 interface BookGridProps {
   books: Book[];
   onAddToCart?: (bookId: string) => void;
+}*/
+interface BookGridProps {
+  onAddToCart?: (bookId: string) => void;
 }
 
-const BookGrid: React.FC<BookGridProps> = ({ books, onAddToCart }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const BookGrid: React.FC<BookGridProps> = ({ onAddToCart }) => {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [sortBy, setSortBy] = useState('title');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [featuredCarouselIndex, setFeaturedCarouselIndex] = useState(0);
+  
+  React.useEffect(() => {
+    async function fetchBooks() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/books');
+        if (!res.ok) throw new Error('Failed to fetch books');
+        const data: Book[] = await res.json();
+           const formattedBooks = data.map((book: any) => ({
+          ...book,
+          id: book.id || book._id, // fallback لو البيانات فيها _id
+        }));
+        setBooks(formattedBooks);
+      } catch (err: any) {
+        setError(err.message || 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
 
+    fetchBooks();
+  }, []);
+
+  
   // Memoize featured books to prevent re-calculation on every render
   const featuredBooks = useMemo(() => books.filter(book => book.featured), [books]);
-
+ 
   // Carousel settings for featured books
   const booksPerPage = 4;
   const totalFeaturedPages = Math.ceil(featuredBooks.length / booksPerPage);
@@ -34,7 +64,6 @@ const BookGrid: React.FC<BookGridProps> = ({ books, onAddToCart }) => {
     const endIndex = startIndex + booksPerPage;
     return featuredBooks.slice(startIndex, endIndex);
   }, [featuredBooks, featuredCarouselIndex]);
-
   // Carousel navigation functions
   const goToPreviousFeatured = () => {
     setFeaturedCarouselIndex(prev => 
@@ -129,7 +158,8 @@ const BookGrid: React.FC<BookGridProps> = ({ books, onAddToCart }) => {
     setItemsPerPage(newItemsPerPage);
     setCurrentPage(1);
   };
-
+ if (loading) return <p>Loading books...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Featured Books Section */}
