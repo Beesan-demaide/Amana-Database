@@ -4,14 +4,9 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic'; 
 
-interface RouteContext {
-  params: {
-    id: string; // The dynamic segment from the URL
-  };
-}
-
-export async function GET(request: Request, { params }: RouteContext) {
-  const bookId = params.id;
+export async function GET(request: Request,context: any     
+) {
+  const { id: bookId } = context.params;
   
   // Define the search query object
   let query: any;

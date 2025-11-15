@@ -5,7 +5,7 @@ import { Book } from '@/app/types'; // Assuming your type is exported from here
 
 // Helper function to get the 'books' collection
 async function getBooksCollection(): Promise<Collection<Omit<Book, 'id'>>> {
-  const db  = await connectToDatabase();
+  const  db  = await connectToDatabase();
   // We use Omit<Book, 'id'> because MongoDB uses `_id` and we'll map it to `id`
   return db.collection<Omit<Book, 'id'>>('books');
 }
